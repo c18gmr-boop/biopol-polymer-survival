@@ -1,0 +1,460 @@
+:root {
+  --bg: #0c120c;
+  --bg-deep: #040704;
+  --panel: rgba(14, 24, 14, 0.92);
+  --panel-strong: rgba(17, 28, 17, 0.98);
+  --line: rgba(118, 196, 64, 0.18);
+  --line-strong: rgba(118, 196, 64, 0.36);
+  --text: #f3f7f0;
+  --muted: #a2b09d;
+  --lime: #7fd241;
+  --shadow: 0 16px 42px rgba(0, 0, 0, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(62, 119, 24, 0.18), transparent 34%),
+    radial-gradient(circle at top right, rgba(127, 210, 65, 0.1), transparent 30%),
+    linear-gradient(180deg, #121712 0%, var(--bg-deep) 100%);
+  color: var(--text);
+  font-family: "Avenir Next", "Segoe UI", "Trebuchet MS", sans-serif;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(135deg, rgba(0, 0, 0, 0.28), rgba(8, 16, 8, 0.58)),
+    url("./assets/circuit-bg.png") center / 620px repeat;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+button,
+select {
+  font: inherit;
+}
+
+code {
+  font-family: "Menlo", "Consolas", monospace;
+  font-size: 0.92em;
+  padding: 0.12rem 0.38rem;
+  border-radius: 0.45rem;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.page-shell {
+  position: relative;
+  max-width: 1880px;
+  margin: 0 auto;
+  padding: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.panel {
+  position: relative;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(17, 29, 17, 0.94), rgba(8, 13, 8, 0.94));
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, rgba(127, 210, 65, 0.08), transparent 34%),
+    linear-gradient(315deg, rgba(37, 99, 18, 0.08), transparent 30%);
+  pointer-events: none;
+}
+
+.topbar,
+.match-hud,
+.rider-panel,
+.game-panel {
+  position: relative;
+  z-index: 1;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+}
+
+.brand-cluster {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+
+.title-art {
+  width: clamp(220px, 22vw, 360px);
+  padding: 10px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(127, 210, 65, 0.25);
+  flex: 0 0 auto;
+}
+
+.brand-copy {
+  min-width: 0;
+}
+
+.eyebrow,
+.section-tag,
+.stat-label,
+.status-label {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.66rem;
+  color: var(--muted);
+}
+
+.brand-copy h1,
+.panel-heading h2,
+.game-head h2 {
+  margin: 8px 0 0;
+  font-family: "Avenir Next Condensed", "Arial Narrow", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.brand-copy h1 {
+  font-size: clamp(1rem, 1.45vw, 1.55rem);
+  line-height: 0.98;
+}
+
+.brand-note {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.summary-strip {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.summary-card {
+  display: grid;
+  gap: 6px;
+  min-width: 136px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(2, 10, 12, 0.64);
+  border: 1px solid var(--line);
+}
+
+.summary-card strong {
+  font-family: "Menlo", "Consolas", monospace;
+  color: var(--lime);
+  font-size: 0.95rem;
+}
+
+.match-hud,
+.rider-panel,
+.game-panel {
+  padding: 12px 14px;
+}
+
+.control-row {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.mini-field {
+  display: grid;
+  gap: 6px;
+  min-width: 128px;
+}
+
+.mini-field span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.mini-field select,
+.player-row select {
+  appearance: none;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel-strong);
+  color: var(--text);
+  padding: 8px 10px;
+}
+
+.action-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.primary-button,
+.secondary-button {
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 8px 13px;
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, rgba(37, 99, 18, 0.52), rgba(127, 210, 65, 0.34));
+  color: var(--text);
+}
+
+.secondary-button {
+  background: rgba(4, 10, 16, 0.72);
+  color: var(--muted);
+}
+
+.primary-button:hover,
+.secondary-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.scoreboard {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.score-card {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border-radius: 16px;
+  background: rgba(5, 12, 17, 0.72);
+  border: 1px solid var(--line);
+}
+
+.score-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.score-card small,
+.player-row small,
+.control-note,
+.status-text {
+  color: var(--muted);
+}
+
+.score-dot,
+.player-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+}
+
+.score-value {
+  font-family: "Menlo", "Consolas", monospace;
+  font-size: 1rem;
+}
+
+.effect-strip {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.effect-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 0.72rem;
+}
+
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 8px;
+}
+
+.player-config {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.player-row {
+  display: grid;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 16px;
+  background: rgba(5, 12, 17, 0.72);
+  border: 1px solid var(--line);
+}
+
+.player-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.player-row label {
+  position: relative;
+}
+
+.game-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.head-chip-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.canvas-shell {
+  position: relative;
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  background: linear-gradient(180deg, rgba(8, 14, 8, 0.98), rgba(4, 8, 4, 0.98));
+  box-shadow: inset 0 0 0 1px rgba(127, 210, 65, 0.08);
+}
+
+#arena {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 5 / 3;
+  background: #02090d;
+}
+
+.overlay-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(4, 13, 16, 0.8);
+  color: var(--text);
+  font-family: "Menlo", "Consolas", monospace;
+  font-size: 0.78rem;
+}
+
+.overlay-chip.muted {
+  color: var(--muted);
+}
+
+.game-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: end;
+  margin-top: 8px;
+}
+
+.status-text,
+.control-note {
+  margin: 4px 0 0;
+  line-height: 1.45;
+  font-size: 0.84rem;
+}
+
+.control-note {
+  max-width: 44ch;
+  text-align: right;
+}
+
+@media (max-width: 1150px) {
+  .scoreboard,
+  .player-config {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .page-shell {
+    padding: 10px;
+  }
+
+  .topbar,
+  .game-head,
+  .game-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .brand-cluster {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .scoreboard,
+  .player-config {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .control-note {
+    max-width: none;
+    text-align: left;
+  }
+}
+
+@media (max-width: 640px) {
+  .scoreboard,
+  .player-config {
+    grid-template-columns: 1fr;
+  }
+
+  .action-row {
+    width: 100%;
+  }
+
+  .primary-button,
+  .secondary-button {
+    flex: 1 1 auto;
+  }
+}
