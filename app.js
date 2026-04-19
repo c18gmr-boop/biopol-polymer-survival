@@ -13,7 +13,6 @@
   const restartButton = document.getElementById("restart-round");
   const arenaSelect = document.getElementById("arena-select");
   const targetSelect = document.getElementById("target-select");
-  const extraCpuSelect = document.getElementById("extra-cpu-select");
   const playerConfig = document.getElementById("player-config");
   const scoreboard = document.getElementById("scoreboard");
   const statusText = document.getElementById("status-text");
@@ -237,7 +236,7 @@
     players: [],
     scores: {},
     status: "idle",
-    statusMessage: "Configure human and auto polymer chains, then start a reaction.",
+    statusMessage: "Configure the primary chains, then add extra CPU chains if needed.",
     arenaKey: arenaSelect.value,
     matchTarget: Number(targetSelect.value),
     countdownRemaining: COUNTDOWN_MS,
@@ -300,11 +299,11 @@
   }
 
   function buildPlayerConfig() {
-    const defaultHumanCount = isTouchPreferred ? 1 : 2;
-    const defaultExtraCpuCount = isTouchPreferred ? 3 : 2;
+    const defaults = isTouchPreferred
+      ? ["human", "cpu", "cpu", "cpu", "off", "off"]
+      : ["human", "human", "cpu", "cpu", "off", "off"];
 
-    playerConfig.innerHTML = HUMAN_SLOT_DEFS.map((slot, index) => {
-      const isEnabled = index < defaultHumanCount;
+    const primaryRows = HUMAN_SLOT_DEFS.map((slot, index) => {
       return `
         <div class="player-row">
           <div class="player-header">
@@ -317,15 +316,47 @@
           <label>
             <span class="sr-only">${slot.label} mode</span>
             <select data-slot="${slot.slot}">
-              <option value="human"${isEnabled ? " selected" : ""}>Manual</option>
-              <option value="off"${isEnabled ? "" : " selected"}>Off</option>
+              <option value="human"${defaults[index] === "human" ? " selected" : ""}>Manual</option>
+              <option value="cpu"${defaults[index] === "cpu" ? " selected" : ""}>Auto</option>
+              <option value="off"${defaults[index] === "off" ? " selected" : ""}>Off</option>
             </select>
           </label>
         </div>
       `;
     }).join("");
 
-    extraCpuSelect.value = String(defaultExtraCpuCount);
+    const extraRows = EXTRA_CPU_SLOT_DEFS.map((slot) => {
+      return `
+        <div class="player-row extra-player-row">
+          <div class="player-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="player-dot" style="color:${slot.color}; background:${slot.color};"></span>
+              <strong>${slot.label}</strong>
+            </div>
+            <small>${slot.controlsLabel}</small>
+          </div>
+          <label>
+            <span class="sr-only">${slot.label} mode</span>
+            <select data-slot="${slot.slot}">
+              <option value="off" selected>Off</option>
+              <option value="cpu">Auto</option>
+            </select>
+          </label>
+        </div>
+      `;
+    }).join("");
+
+    playerConfig.innerHTML = `
+      <div class="player-list" aria-label="Primary chain setup">
+        ${primaryRows}
+      </div>
+      <details class="extra-player-group">
+        <summary>Extra Auto Chains</summary>
+        <div class="player-list extra-player-list" aria-label="Extra CPU chain setup">
+          ${extraRows}
+        </div>
+      </details>
+    `;
 
     for (const select of playerConfig.querySelectorAll("select")) {
       select.addEventListener("change", () => {
@@ -335,13 +366,6 @@
         }
       });
     }
-
-    extraCpuSelect.addEventListener("change", () => {
-      markScoreboardDirty();
-      if (state.status === "idle" || state.status === "match-over") {
-        updateScoreboard();
-      }
-    });
   }
 
   function onKeyDown(event) {
@@ -555,17 +579,16 @@
       };
     }).filter((slot) => slot.mode !== "off");
 
-    const extraCpuCount = Math.max(
-      0,
-      Math.min(EXTRA_CPU_SLOT_DEFS.length, Number(extraCpuSelect.value) || 0),
-    );
-    const cpus = EXTRA_CPU_SLOT_DEFS.slice(0, extraCpuCount).map((slot) => {
+    const cpus = EXTRA_CPU_SLOT_DEFS.map((slot) => {
+      const select = modes.find((entry) => Number(entry.dataset.slot) === slot.slot);
+      const mode = select ? select.value : "off";
+
       return {
         ...slot,
-        mode: "cpu",
+        mode,
         score: readScore(slot.slot),
       };
-    });
+    }).filter((slot) => slot.mode === "cpu");
 
     return [...humans, ...cpus];
   }
@@ -740,9 +763,36 @@
   }
 
   function scoreDirection(player, direction) {
+    const vector = DIRECTIONS[direction];
+    const nextX = player.x + vector.x;
+    const nextY = player.y + vector.y;
+    if (cellBlocked(nextX, nextY)) {
+      return -Infinity;
+    }
+
     const safeDistance = measureDistance(player.x, player.y, direction);
-    const straightBonus = direction === player.direction ? 2.5 : 0;
-    return safeDistance * 1.5 + straightBonus + Math.random();
+    const forwardDistance = measureDistance(nextX, nextY, direction);
+    const leftDistance = measureDistance(nextX, nextY, DIRECTIONS[direction].left);
+    const rightDistance = measureDistance(nextX, nextY, DIRECTIONS[direction].right);
+    const escapeDistance = Math.max(leftDistance, rightDistance);
+    const straightBonus = direction === player.direction ? 0.8 : 0;
+    const edgeUsageScore = scoreEdgeUsage(
+      player.x,
+      player.y,
+      nextX,
+      nextY,
+      safeDistance,
+      escapeDistance,
+    );
+
+    return (
+      safeDistance * 0.9
+      + forwardDistance * 0.45
+      + escapeDistance * 0.8
+      + edgeUsageScore
+      + straightBonus
+      + Math.random() * 0.35
+    );
   }
 
   function measureDistance(x, y, direction) {
@@ -768,6 +818,35 @@
     }
 
     return distance;
+  }
+
+  function scoreEdgeUsage(currentX, currentY, nextX, nextY, safeDistance, escapeDistance) {
+    if (safeDistance < 5) {
+      return 0;
+    }
+
+    const currentEdgeDistance = distanceToNearestEdge(currentX, currentY);
+    const nextEdgeDistance = distanceToNearestEdge(nextX, nextY);
+    const movingTowardEdge = Math.max(0, currentEdgeDistance - nextEdgeDistance);
+    const perimeterLaneBonus =
+      nextEdgeDistance <= 5 && escapeDistance >= 3
+        ? (6 - nextEdgeDistance) * 0.45
+        : 0;
+
+    return movingTowardEdge * 1.1 + perimeterLaneBonus;
+  }
+
+  function distanceToNearestEdge(x, y) {
+    return Math.min(x, y, COLS - 1 - x, ROWS - 1 - y);
+  }
+
+  function cellBlocked(x, y) {
+    if (isOutOfBounds(x, y)) {
+      return true;
+    }
+
+    const index = getIndex(x, y);
+    return Boolean(state.wallMask[index] || state.trailMask[index]);
   }
 
   function stepPlayer(player, timestamp) {

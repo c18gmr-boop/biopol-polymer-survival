@@ -323,14 +323,20 @@ code {
 
 .player-config {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 6px;
+  gap: 10px;
+}
+
+.player-list {
+  display: grid;
+  gap: 8px;
 }
 
 .player-row {
-  display: grid;
-  gap: 6px;
-  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
   border-radius: 16px;
   background: rgba(5, 12, 17, 0.72);
   border: 1px solid var(--line);
@@ -341,10 +347,50 @@ code {
   justify-content: space-between;
   gap: 8px;
   align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .player-row label {
   position: relative;
+  flex: 0 0 120px;
+}
+
+.extra-player-group {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(5, 12, 17, 0.52);
+  overflow: hidden;
+}
+
+.extra-player-group summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.extra-player-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.extra-player-group summary::after {
+  content: "Open";
+  float: right;
+  font-size: 0.72rem;
+  color: var(--lime);
+}
+
+.extra-player-group[open] summary::after {
+  content: "Close";
+}
+
+.extra-player-list {
+  padding: 0 8px 8px;
 }
 
 .game-head {
@@ -439,6 +485,15 @@ code {
 }
 
 @media (max-width: 640px) {
+  .player-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .player-row label {
+    flex-basis: auto;
+  }
+
   .action-row {
     width: 100%;
   }
