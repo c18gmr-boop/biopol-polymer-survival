@@ -13,6 +13,7 @@
   const restartButton = document.getElementById("restart-round");
   const arenaSelect = document.getElementById("arena-select");
   const targetSelect = document.getElementById("target-select");
+  const extraCpuSelect = document.getElementById("extra-cpu-select");
   const playerConfig = document.getElementById("player-config");
   const scoreboard = document.getElementById("scoreboard");
   const statusText = document.getElementById("status-text");
@@ -107,7 +108,7 @@
     },
   };
 
-  const SLOT_DEFS = [
+  const HUMAN_SLOT_DEFS = [
     {
       slot: 1,
       label: "Chain 1",
@@ -181,6 +182,52 @@
       },
     },
   ];
+
+  const EXTRA_CPU_SLOT_DEFS = [
+    {
+      slot: 7,
+      label: "Chain 7",
+      color: "#9b7bff",
+      controlsLabel: "Extra auto chain",
+      keys: {},
+    },
+    {
+      slot: 8,
+      label: "Chain 8",
+      color: "#13d8c8",
+      controlsLabel: "Extra auto chain",
+      keys: {},
+    },
+    {
+      slot: 9,
+      label: "Chain 9",
+      color: "#ff8aa8",
+      controlsLabel: "Extra auto chain",
+      keys: {},
+    },
+    {
+      slot: 10,
+      label: "Chain 10",
+      color: "#47b8ff",
+      controlsLabel: "Extra auto chain",
+      keys: {},
+    },
+    {
+      slot: 11,
+      label: "Chain 11",
+      color: "#9eff7d",
+      controlsLabel: "Extra auto chain",
+      keys: {},
+    },
+    {
+      slot: 12,
+      label: "Chain 12",
+      color: "#ff9966",
+      controlsLabel: "Extra auto chain",
+      keys: {},
+    },
+  ];
+  const SLOT_DEFS = [...HUMAN_SLOT_DEFS, ...EXTRA_CPU_SLOT_DEFS];
   const SLOT_BY_ID = Object.fromEntries(SLOT_DEFS.map((slot) => [slot.slot, slot]));
 
   const state = {
@@ -190,7 +237,7 @@
     players: [],
     scores: {},
     status: "idle",
-    statusMessage: "Configure polymer chains, then start a reaction.",
+    statusMessage: "Configure human and auto polymer chains, then start a reaction.",
     arenaKey: arenaSelect.value,
     matchTarget: Number(targetSelect.value),
     countdownRemaining: COUNTDOWN_MS,
@@ -248,15 +295,16 @@
     heroArena.textContent = ARENAS[state.arenaKey].label;
     roundChip.textContent = `Target ${state.matchTarget}`;
     resetArenaState();
+    updateScoreboard();
     requestAnimationFrame(frame);
   }
 
   function buildPlayerConfig() {
-    const defaults = isTouchPreferred
-      ? ["human", "cpu", "cpu", "cpu", "off", "off"]
-      : ["human", "human", "cpu", "cpu", "off", "off"];
+    const defaultHumanCount = isTouchPreferred ? 1 : 2;
+    const defaultExtraCpuCount = isTouchPreferred ? 3 : 2;
 
-    playerConfig.innerHTML = SLOT_DEFS.map((slot, index) => {
+    playerConfig.innerHTML = HUMAN_SLOT_DEFS.map((slot, index) => {
+      const isEnabled = index < defaultHumanCount;
       return `
         <div class="player-row">
           <div class="player-header">
@@ -267,16 +315,17 @@
             <small>${slot.controlsLabel}</small>
           </div>
           <label>
-              <span class="sr-only">${slot.label} mode</span>
-              <select data-slot="${slot.slot}">
-              <option value="human"${defaults[index] === "human" ? " selected" : ""}>Manual</option>
-              <option value="cpu"${defaults[index] === "cpu" ? " selected" : ""}>Auto</option>
-              <option value="off"${defaults[index] === "off" ? " selected" : ""}>Off</option>
+            <span class="sr-only">${slot.label} mode</span>
+            <select data-slot="${slot.slot}">
+              <option value="human"${isEnabled ? " selected" : ""}>Manual</option>
+              <option value="off"${isEnabled ? "" : " selected"}>Off</option>
             </select>
           </label>
         </div>
       `;
     }).join("");
+
+    extraCpuSelect.value = String(defaultExtraCpuCount);
 
     for (const select of playerConfig.querySelectorAll("select")) {
       select.addEventListener("change", () => {
@@ -286,6 +335,13 @@
         }
       });
     }
+
+    extraCpuSelect.addEventListener("change", () => {
+      markScoreboardDirty();
+      if (state.status === "idle" || state.status === "match-over") {
+        updateScoreboard();
+      }
+    });
   }
 
   function onKeyDown(event) {
@@ -411,7 +467,7 @@
 
   function startMatch() {
     state.matchTarget = Number(targetSelect.value);
-    const participants = getConfiguredSlots();
+    const participants = getConfiguredPlayers();
 
     if (participants.length === 0) {
       updateStatus("Enable at least one chain before starting a reaction.");
@@ -428,7 +484,7 @@
 
   function startRound() {
     resetArenaState();
-    const configured = getConfiguredSlots();
+    const configured = getConfiguredPlayers();
 
     if (configured.length === 0) {
       state.status = "idle";
@@ -452,6 +508,7 @@
 
   function createRoundPlayers(configuredSlots) {
     const centerColumn = Math.floor(COLS / 2);
+    const centerRow = Math.floor(ROWS / 2);
     const spawnPoints = [
       { x: 10, y: 10, direction: "right" },
       { x: COLS - 11, y: ROWS - 11, direction: "left" },
@@ -459,6 +516,12 @@
       { x: 10, y: ROWS - 11, direction: "right" },
       { x: centerColumn, y: 10, direction: "down" },
       { x: centerColumn, y: ROWS - 11, direction: "up" },
+      { x: 10, y: centerRow, direction: "right" },
+      { x: COLS - 11, y: centerRow, direction: "left" },
+      { x: 45, y: 10, direction: "down" },
+      { x: COLS - 46, y: ROWS - 11, direction: "up" },
+      { x: 10, y: 25, direction: "right" },
+      { x: COLS - 11, y: ROWS - 26, direction: "left" },
     ];
 
     return configuredSlots.map((slot, index) => {
@@ -479,10 +542,9 @@
     });
   }
 
-  function getConfiguredSlots() {
+  function getConfiguredPlayers() {
     const modes = Array.from(playerConfig.querySelectorAll("select"));
-
-    return SLOT_DEFS.map((slot) => {
+    const humans = HUMAN_SLOT_DEFS.map((slot) => {
       const select = modes.find((entry) => Number(entry.dataset.slot) === slot.slot);
       const mode = select ? select.value : "off";
 
@@ -492,6 +554,20 @@
         score: readScore(slot.slot),
       };
     }).filter((slot) => slot.mode !== "off");
+
+    const extraCpuCount = Math.max(
+      0,
+      Math.min(EXTRA_CPU_SLOT_DEFS.length, Number(extraCpuSelect.value) || 0),
+    );
+    const cpus = EXTRA_CPU_SLOT_DEFS.slice(0, extraCpuCount).map((slot) => {
+      return {
+        ...slot,
+        mode: "cpu",
+        score: readScore(slot.slot),
+      };
+    });
+
+    return [...humans, ...cpus];
   }
 
   function readScore(slotNumber) {
@@ -902,7 +978,7 @@
     }
 
     if (state.players.length === 0) {
-      const previewPlayers = getConfiguredSlots();
+      const previewPlayers = getConfiguredPlayers();
       if (previewPlayers.length) {
         scoreboard.innerHTML = previewPlayers.map((player) => {
           return `

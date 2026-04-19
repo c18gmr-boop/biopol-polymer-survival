@@ -5,8 +5,8 @@ Biopol Chain Reaction is a lightweight browser game about guiding a polymer chai
 ## What it includes
 
 - Local multiplayer trail-survival gameplay
-- Support for up to six polymer chains
-- CPU-controlled opponents for solo play
+- Support for up to six human chains plus six extra CPU chains
+- Configurable CPU-controlled opponents for solo play or larger matches
 - Multiple arena layouts
 - Responsive HUD with touch steering for player one
 - Custom Biopol-themed presentation and artwork

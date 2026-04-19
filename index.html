@@ -59,6 +59,19 @@
             </select>
           </label>
 
+          <label class="mini-field">
+            <span>Extra Auto Chains</span>
+            <select id="extra-cpu-select">
+              <option value="0">0 extra</option>
+              <option value="1">1 extra</option>
+              <option value="2" selected>2 extra</option>
+              <option value="3">3 extra</option>
+              <option value="4">4 extra</option>
+              <option value="5">5 extra</option>
+              <option value="6">6 extra</option>
+            </select>
+          </label>
+
           <div class="action-row">
             <button id="start-match" class="primary-button">Start Reaction</button>
             <button id="pause-match" class="secondary-button">Pause</button>
@@ -72,8 +85,11 @@
       <section class="rider-panel panel">
         <div class="panel-heading">
           <p class="section-tag">Polymer Chains</p>
-          <h2>Manual, Auto, or Off</h2>
+          <h2>Up to Six Human Chains</h2>
         </div>
+        <p class="config-note">
+          Enable up to six manual players, then use the extra auto-chain dropdown to add up to six more computer rivals.
+        </p>
         <div id="player-config" class="player-config"></div>
       </section>
 
@@ -97,7 +113,7 @@
           <div>
             <p class="status-label">Reaction Feed</p>
             <p id="status-text" class="status-text">
-              Configure four or six polymer chains, then start a reaction. Swipe on touch devices to steer chain one.
+              Configure up to six human chains and optional extra auto chains, then start a reaction. Swipe on touch devices to steer chain one.
             </p>
           </div>
           <p class="control-note">
