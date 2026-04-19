@@ -533,19 +533,24 @@
   function createRoundPlayers(configuredSlots) {
     const centerColumn = Math.floor(COLS / 2);
     const centerRow = Math.floor(ROWS / 2);
+    const edgeInset = 1;
+    const topRow = edgeInset;
+    const bottomRow = ROWS - 1 - edgeInset;
+    const leftColumn = edgeInset;
+    const rightColumn = COLS - 1 - edgeInset;
     const spawnPoints = [
-      { x: 10, y: 10, direction: "right" },
-      { x: COLS - 11, y: ROWS - 11, direction: "left" },
-      { x: COLS - 11, y: 10, direction: "left" },
-      { x: 10, y: ROWS - 11, direction: "right" },
-      { x: centerColumn, y: 10, direction: "down" },
-      { x: centerColumn, y: ROWS - 11, direction: "up" },
-      { x: 10, y: centerRow, direction: "right" },
-      { x: COLS - 11, y: centerRow, direction: "left" },
-      { x: 45, y: 10, direction: "down" },
-      { x: COLS - 46, y: ROWS - 11, direction: "up" },
-      { x: 10, y: 25, direction: "right" },
-      { x: COLS - 11, y: ROWS - 26, direction: "left" },
+      { x: 14, y: topRow, direction: "down" },
+      { x: centerColumn, y: topRow, direction: "down" },
+      { x: COLS - 15, y: topRow, direction: "down" },
+      { x: rightColumn, y: 14, direction: "left" },
+      { x: rightColumn, y: centerRow, direction: "left" },
+      { x: rightColumn, y: ROWS - 15, direction: "left" },
+      { x: COLS - 15, y: bottomRow, direction: "up" },
+      { x: centerColumn, y: bottomRow, direction: "up" },
+      { x: 14, y: bottomRow, direction: "up" },
+      { x: leftColumn, y: ROWS - 15, direction: "right" },
+      { x: leftColumn, y: centerRow, direction: "right" },
+      { x: leftColumn, y: 14, direction: "right" },
     ];
 
     return configuredSlots.map((slot, index) => {
