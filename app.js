@@ -538,23 +538,23 @@
     const bottomRow = ROWS - 1 - edgeInset;
     const leftColumn = edgeInset;
     const rightColumn = COLS - 1 - edgeInset;
-    const spawnPoints = [
-      { x: 14, y: topRow, direction: "down" },
-      { x: centerColumn, y: topRow, direction: "down" },
-      { x: COLS - 15, y: topRow, direction: "down" },
-      { x: rightColumn, y: 14, direction: "left" },
-      { x: rightColumn, y: centerRow, direction: "left" },
-      { x: rightColumn, y: ROWS - 15, direction: "left" },
-      { x: COLS - 15, y: bottomRow, direction: "up" },
-      { x: centerColumn, y: bottomRow, direction: "up" },
-      { x: 14, y: bottomRow, direction: "up" },
-      { x: leftColumn, y: ROWS - 15, direction: "right" },
-      { x: leftColumn, y: centerRow, direction: "right" },
-      { x: leftColumn, y: 14, direction: "right" },
-    ];
+    const spawnPointsBySlot = {
+      1: { x: leftColumn, y: topRow, direction: "down" },
+      2: { x: rightColumn, y: bottomRow, direction: "up" },
+      3: { x: rightColumn, y: topRow, direction: "down" },
+      4: { x: leftColumn, y: bottomRow, direction: "up" },
+      5: { x: centerColumn, y: topRow, direction: "down" },
+      6: { x: centerColumn, y: bottomRow, direction: "up" },
+      7: { x: leftColumn, y: centerRow, direction: "right" },
+      8: { x: rightColumn, y: centerRow, direction: "left" },
+      9: { x: 14, y: topRow, direction: "down" },
+      10: { x: COLS - 15, y: bottomRow, direction: "up" },
+      11: { x: leftColumn, y: ROWS - 15, direction: "right" },
+      12: { x: rightColumn, y: 14, direction: "left" },
+    };
 
-    return configuredSlots.map((slot, index) => {
-      const spawn = spawnPoints[index % spawnPoints.length];
+    return configuredSlots.map((slot) => {
+      const spawn = spawnPointsBySlot[slot.slot];
       const player = {
         ...slot,
         x: spawn.x,
